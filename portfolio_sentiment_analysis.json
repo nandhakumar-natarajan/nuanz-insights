@@ -1,0 +1,78 @@
+{
+  "timestamp": "2025-11-12T12:46:07.828785",
+  "model_info": {
+    "finbert_loaded": false,
+    "textblob_available": false,
+    "primary_method": "enhanced_rule_based"
+  },
+  "portfolio_summary": {
+    "total_stocks": 4,
+    "positive_sentiment": 3,
+    "negative_sentiment": 0,
+    "neutral_sentiment": 1,
+    "overall_sentiment": "positive",
+    "average_confidence": 0.8375,
+    "most_positive": {
+      "symbol": "NATIONALUM",
+      "news": "National Aluminium Company reports record quarterly production with 12% YoY growth, benefiting from robust automotive and infrastructure demand",
+      "confidence": 0.95,
+      "method": "enhanced_rule_based"
+    },
+    "most_negative": {
+      "symbol": "OIL",
+      "news": "Oil and Natural Gas Corporation announces major offshore discovery, expects production boost of 15% over next two years with improved margins",
+      "confidence": 0.175,
+      "method": "enhanced_rule_based"
+    }
+  },
+  "stock_sentiments": [
+    {
+      "symbol": "GOLD1",
+      "news": "Gold ETF experiences strong institutional inflows as central bank policies drive safe haven demand amid global economic uncertainty",
+      "sentiment": "positive",
+      "confidence": 0.85,
+      "scores": {
+        "negative": 0.045,
+        "neutral": 0.105,
+        "positive": 0.85
+      },
+      "method": "enhanced_rule_based"
+    },
+    {
+      "symbol": "NATIONALUM",
+      "news": "National Aluminium Company reports record quarterly production with 12% YoY growth, benefiting from robust automotive and infrastructure demand",
+      "sentiment": "positive",
+      "confidence": 0.95,
+      "scores": {
+        "negative": 0.015,
+        "neutral": 0.035,
+        "positive": 0.95
+      },
+      "method": "enhanced_rule_based"
+    },
+    {
+      "symbol": "OIL",
+      "news": "Oil and Natural Gas Corporation announces major offshore discovery, expects production boost of 15% over next two years with improved margins",
+      "sentiment": "neutral",
+      "confidence": 0.65,
+      "scores": {
+        "negative": 0.175,
+        "neutral": 0.65,
+        "positive": 0.175
+      },
+      "method": "enhanced_rule_based"
+    },
+    {
+      "symbol": "MOTILAL",
+      "news": "Motilal Oswal Large and Midcap Fund delivers alpha with disciplined stock selection, outperforming benchmark by 280 basis points YTD",
+      "sentiment": "positive",
+      "confidence": 0.9,
+      "scores": {
+        "negative": 0.03,
+        "neutral": 0.07,
+        "positive": 0.9
+      },
+      "method": "enhanced_rule_based"
+    }
+  ]
+}

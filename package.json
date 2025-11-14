@@ -1,0 +1,14 @@
+{
+  "name": "nuance-ai-dashboard",
+  "version": "1.0.0",
+  "description": "AI Dashboard for Nuance - Portfolio insights and sentiment analysis",
+  "main": "ai-dashboard.html",
+  "scripts": {
+    "dev": "python -m http.server 8000",
+    "build": "echo 'Static site - no build needed'",
+    "deploy": "vercel --prod"
+  },
+  "keywords": ["dashboard", "ai", "portfolio", "sentiment", "finance"],
+  "author": "Nuance",
+  "license": "MIT"
+}
