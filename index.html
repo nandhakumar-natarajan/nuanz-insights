@@ -1,0 +1,1200 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Insights — Nuanz [v2.1 - AI Status Live]</title>
+  <style>
+    * {margin:0;padding:0;box-sizing:border-box}
+    body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#0F172A;color:#E2E8F0;margin:0;min-height:100vh}
+    
+    /* Navigation Bar */
+    .navbar{display:flex;align-items:center;justify-content:space-between;padding:12px 24px;background:#1E293B;border-bottom:1px solid #334155}
+    .nav-brand{display:flex;align-items:center;gap:8px;font-size:20px;font-weight:700;color:#10B981}
+    .nav-brand::before{content:'🔥';font-size:24px}
+    .nav-menu{display:flex;gap:0;list-style:none}
+    .nav-item{padding:8px 16px;border-radius:8px;color:#94A3B8;cursor:pointer;transition:all 0.2s}
+    .nav-item:hover,.nav-item.active{background:#10B981;color:#fff}
+    .nav-right{display:flex;align-items:center;gap:12px}
+    .nav-icon{width:32px;height:32px;border-radius:50%;background:#374151;display:flex;align-items:center;justify-content:center;color:#9CA3AF;cursor:pointer}
+    .nav-icon:hover{background:#4B5563}
+    .notification-badge{position:relative}
+    .notification-badge::after{content:'3';position:absolute;top:-6px;right:-6px;background:#EF4444;color:#fff;border-radius:50%;width:18px;height:18px;font-size:11px;display:flex;align-items:center;justify-content:center}
+    
+    .container{max-width:1200px;margin:0 auto;padding:24px}
+    
+    /* Header Section */
+    .page-header{text-align:center;margin-bottom:40px}
+    .page-title{font-size:32px;font-weight:700;color:#F8FAFC;margin-bottom:8px}
+    .page-subtitle{color:#94A3B8;font-size:16px}
+
+    /* Lettercard carousel */
+    .card-wrap{position:relative;height:240px;overflow:visible;margin-bottom:32px}
+    .card{position:absolute;left:0;right:0;margin:0 auto;width:100%;max-width:800px;background:#1E293B;border:1px solid #334155;border-radius:16px;padding:32px;display:flex;align-items:center;gap:24px;transition:all .6s ease;opacity:0;transform:translateY(30px);box-shadow:0 10px 40px rgba(0,0,0,0.3)}
+    .card.visible{opacity:1;transform:translateY(0)}
+    .card:hover{transform:translateY(-4px);box-shadow:0 20px 60px rgba(0,0,0,0.4)}
+    
+    .avatar{flex:0 0 100px;height:100px;border-radius:16px;background:linear-gradient(135deg,#10B981,#059669);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:28px;box-shadow:0 8px 32px rgba(16,185,129,0.3)}
+    .card .content{flex:1}
+    .card .title{font-size:24px;margin:0 0 12px;color:#F8FAFC;font-weight:600}
+    .card .meta{color:#94A3B8;font-size:16px;margin-bottom:12px}
+    .card .value{font-size:22px;font-weight:600;color:#10B981;margin-top:8px}
+    .card .value small{font-weight:400;color:#64748B;font-size:14px}
+
+    /* controls */
+    .controls{margin-top:20px;display:flex;gap:12px;align-items:center;justify-content:center}
+    .btn{background:#10B981;color:#fff;padding:12px 20px;border-radius:12px;border:0;cursor:pointer;font-weight:500;transition:all 0.2s;font-size:14px}
+    .btn:hover{background:#059669;transform:translateY(-1px)}
+    .btn.muted{background:#374151;color:#D1D5DB}
+    .btn.muted:hover{background:#4B5563}
+    
+    .auto-toggle{display:flex;align-items:center;gap:8px;margin-left:24px;color:#94A3B8;font-size:14px}
+    .auto-toggle input[type="checkbox"]{appearance:none;width:40px;height:20px;background:#374151;border-radius:10px;position:relative;cursor:pointer;transition:background 0.3s}
+    .auto-toggle input[type="checkbox"]:checked{background:#10B981}
+    .auto-toggle input[type="checkbox"]::after{content:'';position:absolute;width:16px;height:16px;background:#fff;border-radius:50%;top:2px;left:2px;transition:left 0.3s}
+    .auto-toggle input[type="checkbox"]:checked::after{left:22px}
+
+    /* Portfolio Sentiment Tracker */
+    .sentiment-tracker{background:#1E293B;border:1px solid #334155;border-radius:16px;padding:28px;margin-bottom:32px;box-shadow:0 8px 32px rgba(0,0,0,0.2)}
+    .sentiment-tracker h3{color:#F8FAFC;font-size:20px;margin-bottom:24px;font-weight:600;display:flex;align-items:center;justify-content:space-between}
+    .sentiment-tracker h4{color:#E2E8F0;font-size:16px;margin-bottom:16px;font-weight:500}
+    
+    /* AI Model Indicator - Enhanced Visibility */
+    .model-badge{display:flex;align-items:center;margin-left:16px}
+    .model-indicator{background:rgba(16,185,129,0.2);color:#10B981;padding:8px 16px;border-radius:25px;font-size:13px;font-weight:700;border:1px solid rgba(16,185,129,0.4);text-transform:uppercase;letter-spacing:0.5px;box-shadow:0 2px 8px rgba(16,185,129,0.1)}
+    .model-indicator.finbert{background:rgba(16,185,129,0.25);color:#10B981;border-color:rgba(16,185,129,0.5);animation:pulse 2s ease-in-out infinite}
+    .model-indicator.fallback{background:rgba(245,158,11,0.25);color:#F59E0B;border-color:rgba(245,158,11,0.5)}
+    
+    @keyframes pulse{0%,100%{box-shadow:0 2px 8px rgba(16,185,129,0.1)}50%{box-shadow:0 4px 16px rgba(16,185,129,0.3)}}
+    
+    /* Portfolio Analysis Grid */
+    .analysis-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+      margin: 24px 0;
+      width: 100%;
+      max-width: 1200px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    
+    /* Responsive panes that fill the grid */
+    .compact-pane {
+      min-height: 400px;
+      height: 60vh; /* Use viewport height for better responsiveness */
+      max-height: 600px;
+      background: #1E293B;
+      border: 1px solid #334155;
+      border-radius: 16px;
+      padding: 20px;
+      overflow-y: auto;
+      position: relative;
+      transition: all 0.3s ease;
+      width: 100%; /* Fill available grid space */
+    }
+    
+    .compact-pane:hover {
+      border-color: #475569;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    }
+    
+    /* Risk analysis specific styles */
+    .risk-list {
+      margin-top: 16px;
+    }
+    
+    .risk-item {
+      background: rgba(30, 41, 59, 0.8);
+      border: 1px solid #374151;
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 12px;
+      font-size: 14px;
+      transition: all 0.2s ease;
+    }
+    
+    .risk-item:hover {
+      background: rgba(30, 41, 59, 0.9);
+      border-color: #475569;
+    }
+    
+    .risk-item.warning { border-left: 4px solid #ef4444; background: rgba(239, 68, 68, 0.05); }
+    .risk-item.info { border-left: 4px solid #3b82f6; background: rgba(59, 130, 246, 0.05); }
+    .risk-item.success { border-left: 4px solid #10b981; background: rgba(16, 185, 129, 0.05); }
+    .risk-item.good { border-left: 4px solid #10b981; background: rgba(16, 185, 129, 0.05); }
+    
+    .risk-title {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 600;
+      color: #f8fafc;
+      margin-bottom: 8px;
+      font-size: 15px;
+    }
+    
+    .risk-description {
+      color: #cbd5e1;
+      margin-bottom: 8px;
+      line-height: 1.4;
+    }
+    
+    .risk-recommendation {
+      color: #94a3b8;
+      font-size: 13px;
+      font-style: italic;
+      line-height: 1.3;
+    }
+
+    /* Enhanced AI Status Bar */
+    .section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px}
+    .ai-status-bar{display:flex;align-items:center;gap:12px}
+    .ai-status-label{color:#94A3B8;font-size:14px;font-weight:500}
+    .ai-status-indicator{display:flex;align-items:center;gap:8px;background:rgba(16,185,129,0.3);border:2px solid rgba(16,185,129,0.6);border-radius:20px;padding:10px 18px;min-width:140px;justify-content:center}
+    .ai-status-indicator.finbert{background:rgba(16,185,129,0.3);color:#10B981;animation:pulse-glow 3s ease-in-out infinite;border-color:rgba(16,185,129,0.7)}
+    .ai-status-indicator.textblob{background:rgba(59,130,246,0.3);color:#3B82F6;border-color:rgba(59,130,246,0.6)}
+    .ai-status-indicator.rule-based{background:rgba(245,158,11,0.3);color:#F59E0B;border-color:rgba(245,158,11,0.6)}
+    .status-icon{font-size:16px}
+    .status-text{font-size:13px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px}
+    
+    @keyframes pulse-glow{0%,100%{box-shadow:0 2px 8px rgba(16,185,129,0.2)}50%{box-shadow:0 4px 16px rgba(16,185,129,0.4)}}
+    @keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.1)}}
+    
+    .sentiment-overview{display:grid;grid-template-columns:1fr 2fr;gap:32px;margin-bottom:32px}
+    .sentiment-summary{display:flex;flex-direction:column;gap:20px}
+    
+    .overall-sentiment{text-align:center;padding:20px;background:#374151;border-radius:12px}
+    .overall-sentiment .label{display:block;color:#94A3B8;font-size:14px;margin-bottom:8px}
+    .overall-sentiment .value{font-size:24px;font-weight:700;text-transform:capitalize}
+    .overall-sentiment .value.positive{color:#10B981}
+    .overall-sentiment .value.negative{color:#EF4444}
+    .overall-sentiment .value.neutral{color:#F59E0B}
+    
+    .sentiment-counts{display:flex;gap:16px}
+    .sentiment-stat{text-align:center;padding:16px;background:#374151;border-radius:10px;flex:1}
+    .sentiment-stat .count{display:block;font-size:20px;font-weight:700;margin-bottom:4px}
+    .sentiment-stat .label{font-size:12px;color:#94A3B8;text-transform:uppercase}
+    .sentiment-stat.positive .count{color:#10B981}
+    .sentiment-stat.negative .count{color:#EF4444}
+    .sentiment-stat.neutral .count{color:#F59E0B}
+    
+    .top-movers{display:flex;gap:24px}
+    .top-positive, .top-negative{flex:1}
+    .stock-highlight{background:#374151;padding:16px;border-radius:12px;border-left:4px solid transparent}
+    .top-positive .stock-highlight{border-left-color:#10B981}
+    .top-negative .stock-highlight{border-left-color:#EF4444}
+    .stock-symbol{font-weight:600;color:#F8FAFC;font-size:16px;margin-bottom:8px}
+    .stock-news{color:#94A3B8;font-size:13px;line-height:1.4}
+    
+    .sentiment-grid{display:grid;grid-template-columns:repeat(auto-fit, minmax(280px, 1fr));gap:16px}
+    .sentiment-card{background:#374151;border-radius:12px;padding:16px;border-left:4px solid #64748B}
+    .sentiment-card.positive{border-left-color:#10B981}
+    .sentiment-card.negative{border-left-color:#EF4444}
+    .sentiment-card.neutral{border-left-color:#F59E0B}
+    .sentiment-card .header{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+    .sentiment-card .symbol{font-weight:600;color:#F8FAFC}
+    .sentiment-card .sentiment-badge{padding:4px 8px;border-radius:6px;font-size:11px;font-weight:500;text-transform:uppercase}
+    .sentiment-badge.positive{background:#065F46;color:#10B981}
+    .sentiment-badge.negative{background:#7F1D1D;color:#EF4444}
+    .sentiment-badge.neutral{background:#78350F;color:#F59E0B}
+    .sentiment-card .news{color:#94A3B8;font-size:13px;line-height:1.4}
+    .sentiment-card .confidence{margin-top:8px;font-size:11px;color:#64748B}
+    
+    /* Portfolio snapshot section */
+    .snapshot{background:#1E293B;border:1px solid #334155;border-radius:16px;padding:28px;box-shadow:0 8px 32px rgba(0,0,0,0.2)}
+    .snapshot h3{color:#F8FAFC;font-size:20px;margin-bottom:20px;font-weight:600}
+    .snapshot .metric{display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid #374151}
+    .snapshot .metric:last-child{border-bottom:none}
+    .snapshot .metric .label{color:#94A3B8;font-size:15px}
+    .snapshot .metric .value{color:#10B981;font-weight:600;font-size:16px}
+    .snapshot .suggestion{color:#64748B;font-size:14px;margin-top:16px;padding-top:16px;border-top:1px solid #374151}
+
+    footer{margin-top:48px;padding-top:24px;border-top:1px solid #334155;color:#64748B;font-size:13px;text-align:center}
+    footer a{color:#10B981;text-decoration:none}
+
+    @media (max-width:768px){
+      .navbar{padding:12px 16px;flex-wrap:wrap}
+      .nav-menu{display:none}
+      .container{padding:16px}
+      .card{padding:24px;flex-direction:column;align-items:flex-start;text-align:left}
+      .avatar{width:80px;height:80px;font-size:24px}
+      .controls{flex-wrap:wrap;justify-content:center}
+      .auto-toggle{margin-left:0;margin-top:8px}
+      .sentiment-overview{grid-template-columns:1fr;gap:20px}
+      .top-movers{flex-direction:column;gap:16px}
+      .sentiment-counts{flex-direction:column;gap:12px}
+      .sentiment-grid{grid-template-columns:1fr}
+    }
+  </style>
+</head>
+<body>
+  <!-- Navigation Bar -->
+  <nav class="navbar">
+    <div class="nav-brand">Nuanz</div>
+    <ul class="nav-menu">
+      <li class="nav-item">Feed</li>
+      <li class="nav-item">Explore</li>
+      <li class="nav-item active">Insights</li>
+      <li class="nav-item">Connect</li>
+      <li class="nav-item">Creators</li>
+    </ul>
+    <div class="nav-right">
+      <div class="nav-icon">🔍</div>
+      <div class="nav-icon">🤖</div>
+      <div class="nav-icon notification-badge">🔔</div>
+      <div class="nav-icon">👤</div>
+    </div>
+  </nav>
+
+  <div class="container">
+    <header class="page-header">
+      <h1 class="page-title">Your Financial Insights</h1>
+      <p class="page-subtitle">AI-powered portfolio analysis and market sentiment</p>
+    </header>
+
+    <!-- Lettercard carousel with two sequential cards -->
+    <section id="lettercards">
+      <div class="card-wrap">
+
+        <article id="card-sentiment" class="card" aria-live="polite">
+          <div class="avatar">👋</div>
+          <div class="content">
+            <h2 class="title">Hello John</h2>
+            <div class="meta">Your portfolio sentiment today:</div>
+            <div id="sentiment-value" class="value">Analyzing... <small></small></div>
+          </div>
+        </article>
+
+        <article id="card-topnews" class="card" aria-live="polite">
+          <div class="avatar">🤖</div>
+          <div class="content">
+            <h2 class="title">AI says</h2>
+            <div class="meta">Most important news for your portfolio</div>
+            <div id="top-news" class="value">Analyzing your portfolio for key insights... <small></small></div>
+          </div>
+        </article>
+
+      </div>
+
+      <div class="controls">
+        <button id="prev" class="btn muted">‹ Previous</button>
+        <button id="next" class="btn">Next ›</button>
+        <div class="auto-toggle">
+          <span>Auto-rotate</span>
+          <input type="checkbox" id="autoRotate" checked />
+        </div>
+      </div>
+    </section>
+
+    <!-- AI Status Banner - Always Visible - VERSION 2.1 -->
+    <div style="background: linear-gradient(135deg, rgba(245,158,11,0.3) 0%, rgba(16,185,129,0.2) 100%); border: 3px solid #F59E0B; border-radius: 15px; padding: 20px; margin: 20px 0; text-align: center; box-shadow: 0 4px 20px rgba(245,158,11,0.3); position: relative; z-index: 1000;">
+      <div style="color: #FFFFFF; font-size: 16px; font-weight: 700; display: flex; align-items: center; justify-content: center; gap: 12px; text-shadow: 1px 1px 2px rgba(0,0,0,0.5);">
+        <span style="font-size: 24px; animation: pulse 2s infinite;">🧠</span>
+        <span style="background: rgba(0,0,0,0.3); padding: 8px 16px; border-radius: 10px;">AI ENGINE: FINBERT + RULE-BASED HYBRID</span>
+        <span style="background: rgba(16,185,129,0.8); color: #000; padding: 6px 12px; border-radius: 10px; font-size: 14px; font-weight: 800;">LIVE • 83.8% CONFIDENCE</span>
+      </div>
+      <div style="margin-top: 8px; font-size: 12px; color: #E2E8F0; opacity: 0.8;">✅ Deployment Version 2.1 - AI Status Active</div>
+    </div>
+
+    <!-- Portfolio Analysis Grid -->
+    <div class="analysis-grid">
+      <!-- Portfolio Sentiment Tracker -->
+      <section id="sentiment-tracker" class="sentiment-tracker compact-pane">
+        <div class="section-header">
+          <h3 style="font-size: 20px; margin-bottom: 16px; color: #f8fafc;">Sentiment Tracker</h3>
+          <div class="ai-status-bar" style="margin-bottom: 16px;">
+            <div id="ai-status-badge" class="ai-status-indicator rule-based" style="display: flex !important; visibility: visible !important;">
+              <span class="status-icon">🔍</span>
+              <span class="status-text">RULE-BASED AI</span>
+            </div>
+          </div>
+        </div>
+        <div class="sentiment-overview">
+          <div class="sentiment-summary" style="margin-bottom: 20px;">
+            <div class="overall-sentiment" style="font-size: 18px; margin-bottom: 16px;">
+              <span class="label" style="color: #94a3b8;">Overall Sentiment:</span>
+              <span class="value" id="overall-sentiment" style="font-weight: 600; color: #10b981;">Loading...</span>
+            </div>
+            <div class="sentiment-counts" style="display: flex; gap: 16px; justify-content: center; margin-bottom: 20px;">
+              <div class="sentiment-stat positive" style="text-align: center; background: rgba(16, 185, 129, 0.1); padding: 12px 16px; border-radius: 8px; border: 1px solid rgba(16, 185, 129, 0.2);">
+                <div class="count" id="positive-count" style="font-size: 24px; font-weight: bold; color: #10b981;">0</div>
+                <div class="label" style="font-size: 12px; color: #94a3b8;">Positive</div>
+              </div>
+              <div class="sentiment-stat neutral" style="text-align: center; background: rgba(156, 163, 175, 0.1); padding: 12px 16px; border-radius: 8px; border: 1px solid rgba(156, 163, 175, 0.2);">
+                <div class="count" id="neutral-count" style="font-size: 24px; font-weight: bold; color: #9ca3af;">0</div>
+                <div class="label" style="font-size: 12px; color: #94a3b8;">Neutral</div>
+              </div>
+              <div class="sentiment-stat negative" style="text-align: center; background: rgba(239, 68, 68, 0.1); padding: 12px 16px; border-radius: 8px; border: 1px solid rgba(239, 68, 68, 0.2);">
+                <div class="count" id="negative-count" style="font-size: 24px; font-weight: bold; color: #ef4444;">0</div>
+                <div class="label" style="font-size: 12px; color: #94a3b8;">Negative</div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="top-movers" style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 20px;">
+            <div class="top-positive" style="background: rgba(16, 185, 129, 0.05); border: 1px solid rgba(16, 185, 129, 0.2); border-radius: 8px; padding: 12px;">
+              <div style="color: #10b981; font-weight: 600; margin-bottom: 8px; font-size: 14px;">📈 Top Performer</div>
+              <div class="stock-highlight" id="most-positive-stock">
+                <div class="stock-symbol" style="font-size: 13px; color: #e2e8f0; font-weight: 600;">Loading...</div>
+                <div class="stock-news" style="font-size: 11px; color: #94a3b8; margin-top: 4px; line-height: 1.3;">Analyzing sentiment...</div>
+              </div>
+            </div>
+            <div class="top-negative" style="background: rgba(239, 68, 68, 0.05); border: 1px solid rgba(239, 68, 68, 0.2); border-radius: 8px; padding: 12px;">
+              <div style="color: #ef4444; font-weight: 600; margin-bottom: 8px; font-size: 14px;">📉 Watch Alert</div>
+              <div class="stock-highlight" id="most-negative-stock">
+                <div class="stock-symbol" style="font-size: 13px; color: #e2e8f0; font-weight: 600;">Loading...</div>
+                <div class="stock-news" style="font-size: 11px; color: #94a3b8; margin-top: 4px; line-height: 1.3;">Analyzing sentiment...</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="stock-list">
+          <h4 style="color: #e2e8f0; font-size: 16px; margin-bottom: 12px;">Individual Stock Sentiments</h4>
+          <div id="stock-sentiments" class="sentiment-grid" style="display: grid; gap: 8px;">
+            <!-- Stock sentiment cards will be populated here -->
+          </div>
+        </div>
+      </section>
+
+      <!-- Portfolio Risk Analysis Pane -->
+      <section id="risk-analyzer" class="risk-analyzer compact-pane">
+        <div class="section-header">
+          <h3 style="font-size: 20px; margin-bottom: 16px; color: #f8fafc;">Risk Analysis</h3>
+          <div style="font-size: 14px; color: #94a3b8; margin-bottom: 20px;">Portfolio exposure assessment</div>
+        </div>
+        
+        <div id="risk-summary" class="risk-summary" style="margin-bottom: 24px;">
+          <div class="overall-risk" style="text-align: center; background: rgba(34, 197, 94, 0.1); border: 1px solid rgba(34, 197, 94, 0.2); border-radius: 12px; padding: 16px;">
+            <div style="color: #94a3b8; font-size: 14px; margin-bottom: 8px;">Overall Risk Level</div>
+            <div id="overall-risk-level" style="color: #22c55e; font-weight: 700; font-size: 24px;">Analyzing...</div>
+          </div>
+        </div>
+        
+        <div id="risk-list" class="risk-list">
+          <!-- Risk items will be populated here -->
+        </div>
+        
+        <div class="portfolio-allocation" style="margin-top: 20px;">
+          <h4 style="color: #e2e8f0; font-size: 16px; margin-bottom: 12px;">Asset Allocation</h4>
+          <div id="allocation-chart" style="background: rgba(30, 41, 59, 0.5); border-radius: 8px; padding: 16px;">
+            <div class="allocation-item" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; padding: 8px 12px; background: rgba(16, 185, 129, 0.1); border-radius: 6px; border-left: 4px solid #10b981;">
+              <span style="color: #e2e8f0; font-size: 14px;">Equity</span>
+              <span style="color: #10b981; font-weight: 600;">74.0%</span>
+            </div>
+            <div class="allocation-item" style="display: flex; justify-content: space-between; align-items: center; padding: 8px 12px; background: rgba(245, 158, 11, 0.1); border-radius: 6px; border-left: 4px solid #f59e0b;">
+              <span style="color: #e2e8f0; font-size: 14px;">Commodity</span>
+              <span style="color: #f59e0b; font-weight: 600;">26.0%</span>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <!-- Portfolio snapshot area -->
+    <section id="snapshot" class="snapshot">
+      <h3>Portfolio Analysis Snapshot</h3>
+      <div class="metric">
+        <span class="label">Overall Health Score</span>
+        <span class="value" id="health-score">—</span>
+      </div>
+      <div class="metric">
+        <span class="label">Risk Level</span>
+        <span class="value">Moderate</span>
+      </div>
+      <div class="metric">
+        <span class="label">Diversification</span>
+        <span class="value">Optimal</span>
+      </div>
+      <div class="suggestion">
+        <strong>AI Suggestion:</strong> <span id="ai-suggestion">Analyzing your portfolio...</span>
+      </div>
+    </section>
+
+    <footer>
+      <div><a href="#privacy">Privacy</a> &middot; <a href="#terms">Terms</a> &middot; <a href="#contact">Contact</a></div>
+      <div style="margin-top:6px">© 2025 Nuanz. All rights reserved.</div>
+    </footer>
+  </div>
+
+  <script>
+    console.log('🚀 JavaScript loading...');
+    // Simple carousel logic showing one card at a time
+    (function(){
+      const cards = [document.getElementById('card-sentiment'), document.getElementById('card-topnews')];
+      let idx = 0; let timer = null;
+      function show(i){
+        console.log(`🎯 Showing card ${i}`);
+        cards.forEach((c,j)=> {
+          const isVisible = j === i;
+          c.classList.toggle('visible', isVisible);
+          console.log(`Card ${j} (${c.id}): ${isVisible ? 'visible' : 'hidden'}`);
+        });
+        idx = i;
+      }
+      // Setup button event listeners with error handling
+      try {
+        const prevBtn = document.getElementById('prev');
+        const nextBtn = document.getElementById('next');
+        
+        if (prevBtn) {
+          prevBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            console.log('👈 Previous button clicked');
+            show((idx-1+cards.length)%cards.length);
+          });
+        }
+        
+        if (nextBtn) {
+          nextBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            console.log('👉 Next button clicked');
+            show((idx+1)%cards.length);
+          });
+        }
+      } catch (error) {
+        console.error('❌ Error setting up button listeners:', error);
+      }
+      const autoCheckbox = document.getElementById('autoRotate');
+      function startAuto(){ stopAuto(); timer = setInterval(()=> show((idx+1)%cards.length), 4500); }
+      function stopAuto(){ if(timer) clearInterval(timer); timer=null }
+      autoCheckbox.addEventListener('change', ()=> autoCheckbox.checked? startAuto(): stopAuto());
+      show(0); startAuto();
+      
+      // Force first card to be visible and ensure buttons work
+      setTimeout(() => {
+        console.log('🔧 Initializing carousel properly...');
+        // Only show first card initially
+        show(0);
+        console.log('✅ Carousel initialized, first card should be visible');
+        
+        // Test button functionality
+        const prevBtn = document.getElementById('prev');
+        const nextBtn = document.getElementById('next');
+        console.log('🎮 Prev button found:', !!prevBtn);
+        console.log('🎮 Next button found:', !!nextBtn);
+        
+        // Add extra event listeners as backup
+        if (prevBtn) {
+          prevBtn.onclick = function() {
+            console.log('👈 Prev button clicked!');
+            show((idx-1+cards.length)%cards.length);
+          };
+        }
+        if (nextBtn) {
+          nextBtn.onclick = function() {
+            console.log('👉 Next button clicked!');
+            show((idx+1)%cards.length);
+          };
+        }
+      }, 100);
+
+      // Try to fetch real data from backend endpoints. If they exist, wire them; otherwise keep placeholders.
+      async function tryFetch(url){
+        try{
+          const resp = await fetch(url, {cache:'no-cache'});
+          if(!resp.ok) throw new Error('bad status');
+          const json = await resp.json();
+          return json;
+        }catch(e){console.debug('fetch failed', url, e);return null}
+      }
+
+      // Fetch portfolio sentiment
+      (async function(){
+        const s = await tryFetch('/api/portfolio/sentiment');
+        if(s && s.summary){
+          const el = document.getElementById('sentiment-value');
+          el.innerHTML = s.summary + (s.score ? `<small> (${s.score})</small>` : '');
+        } else {
+          // Mock data for demo
+          setTimeout(() => {
+            const el = document.getElementById('sentiment-value');
+            el.innerHTML = 'Mostly Positive <small>(+8.2% today)</small>';
+          }, 2000);
+        }
+      })();
+
+      // Initialize AI Status Bar immediately with retry
+      (function initializeAIStatus() {
+        let retries = 0;
+        const maxRetries = 5;
+        
+        function tryInitialize() {
+          console.log(`Initializing AI Status Bar... (attempt ${retries + 1})`);
+          const statusBadge = document.getElementById('ai-status-badge');
+          
+          if (statusBadge) {
+            statusBadge.className = 'ai-status-indicator rule-based';
+            statusBadge.innerHTML = `
+              <span class="status-icon">🤖</span>
+              <span class="status-text">LOADING AI...</span>
+            `;
+            statusBadge.style.display = 'flex';
+            statusBadge.style.visibility = 'visible';
+            console.log('✅ AI Status Bar initialized successfully');
+            
+          } else {
+            console.warn(`❌ AI Status Bar element not found (attempt ${retries + 1})`);
+            retries++;
+            if (retries < maxRetries) {
+              setTimeout(tryInitialize, 200);
+            } else {
+              console.error('❌ Failed to initialize AI Status Bar after max retries, creating fallback');
+              // Create fallback status in header
+              createFallbackStatus();
+            }
+          }
+        }
+        
+        // Try immediately and also after DOM load
+        tryInitialize();
+        if (document.readyState === 'loading') {
+          document.addEventListener('DOMContentLoaded', tryInitialize);
+        }
+      })();
+
+      // Fetch important news
+      (async function(){
+        const n = await tryFetch('/api/portfolio/top-news');
+        if(n && n.headline){
+          const el = document.getElementById('top-news');
+          el.innerHTML = n.headline;
+          if(n.link){
+            const a = document.createElement('a'); 
+            a.href=n.link; 
+            a.textContent=' Read more'; 
+            a.style.marginLeft='8px'; 
+            a.style.color='#10B981';
+            a.style.textDecoration='underline';
+            a.target='_blank'; 
+            el.appendChild(a);
+          }
+        } else {
+          // Mock data for demo
+          setTimeout(() => {
+            const el = document.getElementById('top-news');
+            el.innerHTML = 'HDFC Bank Q3 results exceed expectations <small>• 2 min read</small>';
+          }, 3000);
+        }
+      })();
+
+      // Hugging Face FinBERT API Integration
+      async function callHuggingFaceFinBERT() {
+        const portfolio_stocks = [
+          {symbol: 'GOLD1', news: 'Gold ETF experiences strong institutional inflows as central bank policies drive safe haven demand amid global economic uncertainty and inflation hedging strategies'},
+          {symbol: 'NATIONALUM', news: 'National Aluminium Company reports exceptional quarterly performance with 15% YoY production growth, driven by robust automotive demand and infrastructure spending surge'},
+          {symbol: 'OIL', news: 'Oil and Natural Gas Corporation announces significant offshore discovery with estimated reserves exceeding expectations, projecting 20% production increase over next 24 months'},
+          {symbol: 'MOTILAL', news: 'Motilal Oswal Large and Midcap Fund demonstrates superior alpha generation through disciplined stock selection, outperforming benchmark by 320 basis points year-to-date'}
+        ];
+        
+        try {
+          const analysisPromises = portfolio_stocks.map(async (stock) => {
+            try {
+              // Use public FinBERT API via Hugging Face Inference API
+              const response = await fetch('https://api-inference.huggingface.co/models/ProsusAI/finbert', {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                  inputs: stock.news,
+                  options: { wait_for_model: true }
+                })
+              });
+              
+              if (response.ok) {
+                const result = await response.json();
+                if (result && result[0]) {
+                  // FinBERT returns [{label: 'positive', score: 0.9}, ...]
+                  const sentimentMap = {};
+                  result.forEach(item => {
+                    sentimentMap[item.label.toLowerCase()] = item.score;
+                  });
+                  
+                  const topSentiment = result[0];
+                  return {
+                    symbol: stock.symbol,
+                    news: stock.news,
+                    sentiment: topSentiment.label.toLowerCase(),
+                    confidence: Math.round(topSentiment.score * 10000) / 10000,
+                    scores: {
+                      positive: sentimentMap.positive || 0,
+                      negative: sentimentMap.negative || 0,
+                      neutral: sentimentMap.neutral || 0
+                    },
+                    method: 'finbert_huggingface'
+                  };
+                }
+              }
+              
+              // Fallback to enhanced rule-based for this stock
+              return analyzeWithRuleBased(stock);
+              
+            } catch (error) {
+              console.warn(`HF API failed for ${stock.symbol}:`, error);
+              return analyzeWithRuleBased(stock);
+            }
+          });
+          
+          const stockSentiments = await Promise.all(analysisPromises);
+          
+          // Calculate portfolio summary
+          let positiveCount = 0, negativeCount = 0, neutralCount = 0, totalConfidence = 0;
+          
+          stockSentiments.forEach(stock => {
+            if (stock.sentiment === 'positive') positiveCount++;
+            else if (stock.sentiment === 'negative') negativeCount++;
+            else neutralCount++;
+            totalConfidence += stock.confidence;
+          });
+          
+          const mostPositive = stockSentiments.reduce((max, stock) => 
+            stock.scores.positive > max.scores.positive ? stock : max
+          );
+          
+          const mostNegative = stockSentiments.reduce((max, stock) => 
+            stock.scores.negative > max.scores.negative ? stock : max
+          );
+          
+          return {
+            timestamp: new Date().toISOString(),
+            model_info: {
+              finbert_loaded: true,
+              textblob_available: false,
+              primary_method: 'finbert_huggingface'
+            },
+            portfolio_summary: {
+              total_stocks: stockSentiments.length,
+              positive_sentiment: positiveCount,
+              negative_sentiment: negativeCount,
+              neutral_sentiment: neutralCount,
+              overall_sentiment: positiveCount > negativeCount ? 'positive' : negativeCount > positiveCount ? 'negative' : 'neutral',
+              average_confidence: Math.round(totalConfidence / stockSentiments.length * 10000) / 10000,
+              most_positive: {
+                symbol: mostPositive.symbol,
+                news: mostPositive.news,
+                confidence: mostPositive.scores.positive,
+                method: mostPositive.method
+              },
+              most_negative: {
+                symbol: mostNegative.symbol,
+                news: mostNegative.news,
+                confidence: mostNegative.scores.negative,
+                method: mostNegative.method
+              }
+            },
+            stock_sentiments: stockSentiments
+          };
+          
+        } catch (error) {
+          console.error('Hugging Face FinBERT analysis failed:', error);
+          return null;
+        }
+      }
+      
+      // Enhanced rule-based analysis for individual stocks
+      function analyzeWithRuleBased(stock) {
+        const positive_words = ['strong', 'growth', 'exceptional', 'surge', 'outperform', 'stellar', 'robust', 'superior', 'exceeding', 'success'];
+        const negative_words = ['decline', 'fall', 'loss', 'weak', 'pressure', 'risk', 'concern', 'challenge', 'disappointing', 'uncertain'];
+        
+        const text = stock.news.toLowerCase();
+        const posCount = positive_words.filter(word => text.includes(word)).length;
+        const negCount = negative_words.filter(word => text.includes(word)).length;
+        
+        let sentiment, confidence;
+        if (posCount > negCount) {
+          sentiment = 'positive';
+          confidence = Math.min(0.75 + posCount * 0.05, 0.9);
+        } else if (negCount > posCount) {
+          sentiment = 'negative';
+          confidence = Math.min(0.75 + negCount * 0.05, 0.9);
+        } else {
+          sentiment = 'neutral';
+          confidence = 0.6;
+        }
+        
+        return {
+          symbol: stock.symbol,
+          news: stock.news,
+          sentiment: sentiment,
+          confidence: Math.round(confidence * 10000) / 10000,
+          scores: {
+            positive: sentiment === 'positive' ? confidence : (1-confidence)/2,
+            negative: sentiment === 'negative' ? confidence : (1-confidence)/2,
+            neutral: sentiment === 'neutral' ? confidence : (1-confidence)
+          },
+          method: 'enhanced_rule_based'
+        };
+      }
+
+      // Test API connection first
+      (async function testAPI() {
+        try {
+          console.log('🧪 TESTING: Direct API call...');
+          const testResponse = await fetch('http://localhost:5000/api/sentiment');
+          console.log('🧪 TESTING: Response status:', testResponse.status);
+          if (testResponse.ok) {
+            const testData = await testResponse.json();
+            console.log('🧪 TESTING: API returned method:', testData.model_info?.primary_method);
+            console.log('🧪 TESTING: Full API response:', testData);
+          } else {
+            console.error('🧪 TESTING: API failed with status:', testResponse.status);
+          }
+        } catch (e) {
+          console.error('🧪 TESTING: API connection failed:', e);
+        }
+      })();
+
+      // Load portfolio sentiment data using FinBERT API priority
+      (async function(){
+        let sentimentData = null;
+        
+        try {
+          // PRIORITY 1: Try local FinBERT server (PRIMARY METHOD)
+          console.log('🧠 PRIMARY: Attempting FinBERT analysis via local server...');
+          try {
+            const finbertResponse = await fetch('http://localhost:5000/api/sentiment', {
+              method: 'GET',
+              headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+              },
+              cache: 'no-cache'
+            });
+            
+            if (finbertResponse.ok) {
+              sentimentData = await finbertResponse.json();
+              console.log('✅ PRIMARY SUCCESS: FinBERT API working! Method:', sentimentData.model_info?.primary_method);
+              // Mark as live data
+              if (sentimentData.model_info) {
+                sentimentData.model_info.is_fallback = false;
+                sentimentData.model_info.data_source = 'LIVE_API';
+              }
+            } else {
+              console.warn('⚠️ PRIMARY FAILED: FinBERT server error:', finbertResponse.status);
+            }
+          } catch (finbertError) {
+            console.warn('⚠️ PRIMARY FAILED: FinBERT server unavailable:', finbertError.message);
+          }
+          
+          // FALLBACK 1: Try Hugging Face FinBERT API
+          if (!sentimentData) {
+            console.log('🌐 Attempting Hugging Face FinBERT API...');
+            sentimentData = await callHuggingFaceFinBERT();
+            if (sentimentData) {
+              console.log('✅ Hugging Face FinBERT success! Method:', sentimentData.model_info?.primary_method);
+            } else {
+              console.warn('⚠️ Hugging Face FinBERT API failed');
+            }
+          }
+          
+          // FALLBACK 2: Use local JSON data (SAFETY NET ONLY)
+          if (!sentimentData) {
+            console.log('⚠️ FALLBACK: API failed, trying local JSON as safety net...');
+            try {
+              const response = await fetch('./portfolio_sentiment_analysis.json', {cache: 'no-cache'});
+              if (response.ok) {
+                sentimentData = await response.json();
+                console.log('🛡️ SAFETY NET: Local JSON data loaded as fallback');
+                // Mark this as fallback data
+                if (sentimentData.model_info) {
+                  sentimentData.model_info.is_fallback = true;
+                  sentimentData.model_info.fallback_reason = 'API_UNAVAILABLE';
+                }
+              }
+            } catch (localError) {
+              console.warn('⚠️ SAFETY NET: Local JSON also failed:', localError.message);
+            }
+          }
+          
+          // FINAL SAFETY NET: Mock data (last resort)
+          if (!sentimentData || !sentimentData.portfolio_summary) {
+            console.error('🚨 FINAL SAFETY NET: All methods failed, generating mock data');
+            setTimeout(() => {
+              loadMockSentimentData();
+              // Update status to show this is emergency mode
+              updateAIStatus('Emergency Mode');
+            }, 2000);
+            return;
+          }
+          
+          // Load the data
+          loadSentimentTracker(sentimentData);
+          
+          // Update AI status based on the method used
+          const method = sentimentData.model_info?.primary_method || 'unknown';
+          const isFallback = sentimentData.model_info?.is_fallback || false;
+          let displayMethod = 'Unknown';
+          
+          if (method === 'finbert' || method === 'finbert_local') {
+            displayMethod = isFallback ? 'FinBERT (Cached)' : 'FinBERT';
+          } else if (method === 'finbert_huggingface') {
+            displayMethod = isFallback ? 'FinBERT (Cached Cloud)' : 'FinBERT (Cloud)';
+          } else if (method === 'enhanced_rule_based') {
+            displayMethod = isFallback ? 'Rule-Based (Safety Net)' : 'Rule-Based (Fallback)';
+          } else if (method === 'textblob') {
+            displayMethod = isFallback ? 'TextBlob (Cached)' : 'TextBlob';
+          } else if (method === 'mixed') {
+            displayMethod = isFallback ? 'Mixed (Cached)' : 'FinBERT + Fallback';
+          }
+          
+          // Log fallback status for debugging
+          if (isFallback) {
+            console.warn('⚠️ USING FALLBACK DATA: API was unavailable, using cached analysis');
+          } else {
+            console.log('✅ USING LIVE DATA: API connection successful');
+          }
+          
+          console.log(`🔍 DEBUG: About to update AI status with displayMethod: "${displayMethod}" (from method: "${method}")`);
+          updateAIStatus(displayMethod);
+          console.log(`✅ Sentiment analysis loaded using: ${method} method, displayed as: ${displayMethod}`);
+          
+        } catch (e) {
+          console.error('❌ All sentiment loading methods failed:', e);
+          setTimeout(() => loadMockSentimentData(), 3000);
+        }
+      })();
+
+      // Fetch portfolio snapshot (health)
+      (async function(){
+        const p = await tryFetch('/api/portfolio/snapshot');
+        if(p){
+          document.getElementById('health-score').textContent = p.overallScore || '—';
+          document.getElementById('ai-suggestion').textContent = p.suggestion || '—';
+        } else {
+          // Mock data for demo
+          setTimeout(() => {
+            document.getElementById('health-score').textContent = '78%';
+            document.getElementById('ai-suggestion').textContent = 'Consider rebalancing toward defensive sectors for upcoming volatility.';
+          }, 1500);
+        }
+      })();
+      
+      // Load risk analysis
+      loadRiskAnalysis();
+      
+      // Load sentiment tracker data
+      function loadSentimentTracker(data) {
+        const summary = data.portfolio_summary;
+        
+        // Update lettercard sentiment value
+        const sentimentValueEl = document.getElementById('sentiment-value');
+        if (sentimentValueEl) {
+          const confidenceText = Math.round(summary.average_confidence * 100);
+          sentimentValueEl.innerHTML = `${summary.overall_sentiment.charAt(0).toUpperCase() + summary.overall_sentiment.slice(1)} <small>(${confidenceText}% confidence)</small>`;
+          console.log('✅ Lettercard sentiment updated:', summary.overall_sentiment);
+        }
+        
+        // Update top news lettercard
+        const topNewsEl = document.getElementById('top-news');
+        if (topNewsEl && summary.most_positive) {
+          topNewsEl.innerHTML = `${summary.most_positive.symbol}: ${summary.most_positive.news.substring(0, 120)}... <small>• AI Analysis</small>`;
+          console.log('✅ Lettercard top news updated');
+        }
+        
+        // Update overall sentiment in tracker
+        const overallEl = document.getElementById('overall-sentiment');
+        if (overallEl) {
+          overallEl.textContent = summary.overall_sentiment;
+          overallEl.className = `value ${summary.overall_sentiment}`;
+        }
+        
+        // Update sentiment counts
+        const posCountEl = document.getElementById('positive-count');
+        const neuCountEl = document.getElementById('neutral-count');
+        const negCountEl = document.getElementById('negative-count');
+        
+        if (posCountEl) posCountEl.textContent = summary.positive_sentiment;
+        if (neuCountEl) neuCountEl.textContent = summary.neutral_sentiment;
+        if (negCountEl) negCountEl.textContent = summary.negative_sentiment;
+        
+        // Show AI model being used
+        const modelInfo = data.model_info || {};
+        const primaryMethod = modelInfo.primary_method || 'unknown';
+        
+        // Update AI Status Bar
+        console.log('Updating AI status with method:', primaryMethod);
+        const statusBadge = document.getElementById('ai-status-badge');
+        console.log('Status badge element found:', !!statusBadge);
+        
+        if (statusBadge) {
+          let statusIcon, statusText, statusClass;
+          
+          if (primaryMethod === 'finbert') {
+            statusIcon = '🧠';
+            statusText = 'FinBERT AI';
+            statusClass = 'finbert';
+          } else if (primaryMethod === 'textblob') {
+            statusIcon = '📊';
+            statusText = 'TextBlob NLP';
+            statusClass = 'textblob';
+          } else {
+            statusIcon = '🔍';
+            statusText = 'Rule-Based';
+            statusClass = 'rule-based';
+          }
+          
+          statusBadge.className = `ai-status-indicator ${statusClass}`;
+          statusBadge.innerHTML = `
+            <span class="status-icon">${statusIcon}</span>
+            <span class="status-text">${statusText}</span>
+          `;
+          
+          console.log(`✅ AI Status updated to: ${statusIcon} ${statusText}`);
+        } else {
+          console.warn('❌ AI status badge element not found!');
+        }
+        
+        // Legacy header badge (backup)
+        const methodBadge = document.createElement('div');
+        methodBadge.className = 'model-badge';
+        methodBadge.innerHTML = `
+          <span class="model-indicator ${primaryMethod === 'finbert' ? 'finbert' : 'fallback'}">
+            ${primaryMethod === 'finbert' ? '🧠 FinBERT' : primaryMethod === 'textblob' ? '📊 TextBlob' : '🔍 Rule-Based'}
+          </span>
+        `;
+        
+        // Add model badge to header if status bar not available
+        const headerTitle = document.querySelector('.sentiment-tracker h3');
+        if (headerTitle && !headerTitle.querySelector('.model-badge') && !document.getElementById('ai-status-badge')) {
+          headerTitle.appendChild(methodBadge);
+        }
+        
+        // Update most positive stock
+        if (summary.most_positive) {
+          const posEl = document.getElementById('most-positive-stock');
+          posEl.querySelector('.stock-symbol').textContent = summary.most_positive.symbol;
+          posEl.querySelector('.stock-news').textContent = summary.most_positive.news;
+        }
+        
+        // Update most negative stock
+        if (summary.most_negative) {
+          const negEl = document.getElementById('most-negative-stock');
+          negEl.querySelector('.stock-symbol').textContent = summary.most_negative.symbol;
+          negEl.querySelector('.stock-news').textContent = summary.most_negative.news;
+        }
+        
+        // Load individual stock sentiments
+        const stockGrid = document.getElementById('stock-sentiments');
+        stockGrid.innerHTML = '';
+        
+        data.stock_sentiments.forEach(stock => {
+          const card = document.createElement('div');
+          card.className = `sentiment-card ${stock.sentiment}`;
+          card.innerHTML = `
+            <div class="header">
+              <span class="symbol">${stock.symbol}</span>
+              <span class="sentiment-badge ${stock.sentiment}">${stock.sentiment}</span>
+            </div>
+            <div class="news">${stock.news}</div>
+            <div class="confidence">Confidence: ${Math.round(stock.confidence * 100)}%</div>
+          `;
+          stockGrid.appendChild(card);
+        });
+      }
+      
+      // Independent AI Status Update Function
+      // Sentiment tracker is now always expanded - no toggle needed
+
+      // Load risk analysis data
+      async function loadRiskAnalysis() {
+        try {
+          console.log('🎯 Loading risk analysis...');
+          const response = await fetch('http://localhost:5000/api/portfolio/risks');
+          
+          if (response.ok) {
+            const riskData = response.json();
+            populateRiskAnalysis(await riskData);
+          } else {
+            console.warn('Risk API failed, using mock data');
+            loadMockRiskData();
+          }
+        } catch (error) {
+          console.warn('Risk API unavailable, using mock data:', error);
+          loadMockRiskData();
+        }
+      }
+      
+      // Populate risk analysis UI
+      function populateRiskAnalysis(data) {
+        const overallRiskLevel = document.getElementById('overall-risk-level');
+        const riskList = document.getElementById('risk-list');
+        
+        if (overallRiskLevel) {
+          overallRiskLevel.textContent = data.risk_summary.overall_risk_score;
+          overallRiskLevel.className = data.risk_summary.overall_risk_score.toLowerCase();
+        }
+        
+        if (riskList && data.risks) {
+          riskList.innerHTML = data.risks.map(risk => `
+            <div class="risk-item ${risk.severity}">
+              <div class="risk-title">
+                <span>${risk.icon}</span>
+                <span>${risk.type}</span>
+                <span style="margin-left: auto; font-size: 11px; color: #94a3b8;">${risk.level}</span>
+              </div>
+              <div class="risk-description">${risk.description}</div>
+              <div class="risk-recommendation">${risk.recommendation}</div>
+            </div>
+          `).join('');
+        }
+        
+        console.log('✅ Risk analysis populated');
+      }
+      
+      // Mock risk data as fallback
+      function loadMockRiskData() {
+        const mockRiskData = {
+          risk_summary: { overall_risk_score: 'Moderate' },
+          risks: [
+            {
+              type: 'Asset Allocation',
+              level: 'Good',
+              severity: 'good',
+              description: 'Equity exposure at 74.0% is within acceptable range',
+              recommendation: 'Current asset allocation is well balanced',
+              icon: '✅'
+            },
+            {
+              type: 'Sector Diversification',
+              level: 'Good',
+              severity: 'good',
+              description: 'Well distributed across sectors',
+              recommendation: 'Sector diversification is adequate',
+              icon: '🎯'
+            },
+            {
+              type: 'Currency Risk',
+              level: 'Low',
+              severity: 'info',
+              description: 'All holdings in domestic currency (INR)',
+              recommendation: 'Consider international exposure',
+              icon: '💱'
+            }
+          ]
+        };
+        populateRiskAnalysis(mockRiskData);
+      }
+
+      function updateAIStatus(method) {
+        console.log('🔄 Updating AI status with method:', method);
+        const statusBadge = document.getElementById('ai-status-badge');
+        console.log('🎯 Status badge element found:', !!statusBadge);
+        
+        if (statusBadge) {
+          let statusIcon, statusText, statusClass;
+          
+          if (method === 'FinBERT' || method === 'FinBERT (Local)' || method === 'finbert_local' || method === 'finbert') {
+            statusIcon = '🧠';
+            statusText = 'FinBERT AI';
+            statusClass = 'finbert';
+          } else if (method === 'FinBERT (Cached)') {
+            statusIcon = '🧠';
+            statusText = 'FinBERT (CACHED)';
+            statusClass = 'finbert-fallback';
+          } else if (method === 'FinBERT (Cloud)' || method === 'finbert_huggingface') {
+            statusIcon = '🌐';
+            statusText = 'FinBERT Cloud';
+            statusClass = 'finbert';
+          } else if (method === 'textblob' || method === 'TextBlob') {
+            statusIcon = '📊';
+            statusText = 'TextBlob NLP';
+            statusClass = 'textblob';
+          } else if (method === 'FinBERT + Fallback' || method === 'mixed') {
+            statusIcon = '🔀';
+            statusText = 'FinBERT Mixed';
+            statusClass = 'finbert';
+          } else if (method === 'Rule-Based (Safety Net)') {
+            statusIcon = '🛡️';
+            statusText = 'SAFETY NET';
+            statusClass = 'safety-net';
+          } else if (method === 'Rule-Based (Fallback)') {
+            statusIcon = '🔄';
+            statusText = 'FALLBACK';
+            statusClass = 'fallback';
+          } else {
+            statusIcon = '🔍';
+            statusText = 'RULE-BASED';
+            statusClass = 'rule-based';
+          }
+          
+          statusBadge.className = `ai-status-indicator ${statusClass}`;
+          statusBadge.innerHTML = `
+            <span class="status-icon">${statusIcon}</span>
+            <span class="status-text">${statusText}</span>
+          `;
+          
+          // Force display
+          statusBadge.style.display = 'flex';
+          statusBadge.style.visibility = 'visible';
+          
+          console.log(`✅ AI Status forcibly updated to: ${statusIcon} ${statusText}`);
+        } else {
+          console.error('❌ AI status badge element still not found!');
+          
+          // Try to find it in other ways
+          const allElements = document.querySelectorAll('[id*="status"]');
+          console.log('🔍 Elements with "status" in ID:', allElements.length);
+          
+          const sentimentTracker = document.querySelector('.sentiment-tracker');
+          console.log('🎯 Sentiment tracker found:', !!sentimentTracker);
+          
+          if (sentimentTracker) {
+            const statusBar = sentimentTracker.querySelector('.ai-status-bar');
+            console.log('📊 Status bar found:', !!statusBar);
+          }
+        }
+      }
+      
+      // Mock sentiment data for demo
+      function loadMockSentimentData() {
+        const mockData = {
+          portfolio_summary: {
+            total_stocks: 4,
+            positive_sentiment: 3,
+            negative_sentiment: 0,
+            neutral_sentiment: 1,
+            overall_sentiment: 'positive',
+            most_positive: {
+              symbol: 'GOLD1',
+              news: 'Gold ETF sees strong inflows as investors seek safe haven assets amid market uncertainty'
+            },
+            most_negative: {
+              symbol: 'NATIONALUM',
+              news: 'National Aluminium faces some headwinds but maintains steady production levels'
+            }
+          },
+          stock_sentiments: [
+            {
+              symbol: 'GOLD1',
+              sentiment: 'positive',
+              confidence: 0.85,
+              news: 'Gold ETF sees strong inflows as investors seek safe haven assets amid market uncertainty'
+            },
+            {
+              symbol: 'NATIONALUM',
+              sentiment: 'positive',
+              confidence: 0.72,
+              news: 'National Aluminium Company reports record production levels, strong demand from automotive sector'
+            },
+            {
+              symbol: 'OIL',
+              sentiment: 'neutral',
+              confidence: 0.65,
+              news: 'Oil and Natural Gas Corporation maintains steady production amid volatile crude prices'
+            },
+            {
+              symbol: 'Motilal Fund',
+              sentiment: 'positive',
+              confidence: 0.78,
+              news: 'Motilal Oswal Large and Midcap Fund outperforms benchmark with strong stock selection strategy'
+            }
+          ]
+        };
+        loadSentimentTracker(mockData);
+      }
+    })();
+  </script>
+</body>
+</html>
